@@ -34,13 +34,11 @@ int PCDtoPLYconvertor(string & input_filename ,string& output_filename)
     return 0;
 }
 
-// 主函数 
 int main( int argc, char** argv )
 {
-    // 图像矩阵
     cv::Mat rgb, depth;
-    // 使用cv::imread()来读取图像
     rgb = cv::imread( "../data/rgb_png/10.png" );
+
     // rgb 图像是8UC3的彩色图像
     // depth 是16UC1的单通道图像，注意flags设置-1,表示读取原始数据不做任何修改
     depth = cv::imread( "../data/depth_png/10.png", -1 );

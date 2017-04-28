@@ -1,0 +1,22 @@
+# camera parameters
+camera_cx=321.153
+camera_cy=246.486
+camera_fx=610.098
+camera_fy=610.098
+camera_factor=10000
+
+# start and stop index
+startIndex=10
+stopIndex=20
+
+# downSampleSize
+downSampleSize=0.005
+
+# icp parameters
+maxCorrespondence=10000
+maxIteration=50
+TransformationEpsilon=1e-10
+EuclideanFitnessEpsilon=0.01
+maxNearbyFrame=3
+fitnessThreshhold=1
+outputGridSize=0.005

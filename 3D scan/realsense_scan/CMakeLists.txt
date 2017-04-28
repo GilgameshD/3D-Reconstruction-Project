@@ -44,19 +44,26 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable(scan scan.cpp)
-target_link_libraries(scan ${REALSENSE_LIBRARIES} ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS})
+# for G2O
+LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
+SET( G2O_ROOT /usr/local/opt/g2o )
+FIND_PACKAGE( G2O REQUIRED )
+FIND_PACKAGE( CSparse REQUIRED )
+INCLUDE_DIRECTORIES( ${G2O_INCLUDE_DIR} ${CSPARSE_INCLUDE_DIR} )
 
-add_executable(readFromRealsense readFromRealsense.cpp)
-target_link_libraries(readFromRealsense ${REALSENSE_LIBRARIES} ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} )
+SET(G2O_LIBS ${G2O_CORE_LIBRARY}   ${G2O_STUFF_LIBRARY} ${G2O_CLI_LIBRARY}
+       ${G2O_TYPES_DATA}     ${G2O_TYPES_ICP}     ${G2O_SOLVER_CHOLMOD}
+       ${G2O_SOLVER_CSPARSE} ${G2O_SOLVER_CSPARSE_EXTENSION}
+       ${G2O_SOLVER_DENSE}   ${G2O_SOLVER_PCG}    ${G2O_SOLVER_SLAM2D_LINEAR}
+       ${G2O_SOLVER_STRUCTURE_ONLY}  ${G2O_SOLVER_EIGEN}
+       ${G2O_TYPES_DATA}     ${G2O_TYPES_ICP}     ${G2O_TYPES_SBA}
+       ${G2O_TYPES_SCLAM2D}  ${G2O_TYPES_SIM3}    ${G2O_TYPES_SLAM2D}
+       ${G2O_TYPES_SLAM3D})
 
-add_executable(scan_from_file scan_from_file.cpp)
-target_link_libraries(scan_from_file ${REALSENSE_LIBRARIES} ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} )
-
+## add files
 add_executable(readRGBandDEPTH readRGBandDEPTH.cpp)
 target_link_libraries(readRGBandDEPTH ${REALSENSE_LIBRARIES} ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} )
 
-
-
-
+add_executable(scan_from_file scan_from_file.cpp)
+target_link_libraries(scan_from_file ${REALSENSE_LIBRARIES} ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} ${G2O_LIBS} ${CSPARSE_LIBRARY})
 

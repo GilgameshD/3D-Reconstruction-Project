@@ -7,12 +7,6 @@
 #IncludeRegexTransform: 
 
 ../include/slamBase.h
-fstream
--
-vector
--
-map
--
 Eigen/Core
 -
 Eigen/Geometry
@@ -37,21 +31,7 @@ pcl/visualization/cloud_viewer.h
 -
 pcl/filters/voxel_grid.h
 -
-
-/Users/host/Desktop/realsense-scan/RGB-D slam/src/slam.cpp
-iostream
--
-fstream
--
-sstream
--
-slamBase.h
-/Users/host/Desktop/realsense-scan/RGB-D slam/src/slamBase.h
-pcl/filters/voxel_grid.h
--
 pcl/filters/passthrough.h
--
-pcl/point_types.h
 -
 g2o/types/slam3d/types_slam3d.h
 -
@@ -73,6 +53,20 @@ g2o/core/robust_kernel_impl.h
 -
 g2o/core/optimization_algorithm_levenberg.h
 -
+fstream
+-
+vector
+-
+map
+-
+iostream
+-
+sstream
+-
+
+/Users/host/Desktop/realsense-scan/RGB-D slam/src/slam.cpp
+slamBase.h
+/Users/host/Desktop/realsense-scan/RGB-D slam/src/slamBase.h
 
 /usr/local/Cellar/eigen/3.3.3/include/eigen3/Eigen/Cholesky
 Core

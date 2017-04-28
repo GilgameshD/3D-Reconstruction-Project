@@ -1,0 +1,3 @@
+/Users/host/Desktop/realsense-scan/OpenNi_test/build/CMakeFiles/rebuild_cache.dir
+/Users/host/Desktop/realsense-scan/OpenNi_test/build/CMakeFiles/edit_cache.dir
+/Users/host/Desktop/realsense-scan/OpenNi_test/build/CMakeFiles/read_from_primesense.dir

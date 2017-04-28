@@ -1,6 +1,0 @@
-/Users/host/Desktop/realsense-scan/realsense_scan/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/host/Desktop/realsense-scan/realsense_scan/cmake-build-debug/CMakeFiles/readRGBandDEPTH.dir
-/Users/host/Desktop/realsense-scan/realsense_scan/cmake-build-debug/CMakeFiles/scan_from_file.dir
-/Users/host/Desktop/realsense-scan/realsense_scan/cmake-build-debug/CMakeFiles/scan.dir
-/Users/host/Desktop/realsense-scan/realsense_scan/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/host/Desktop/realsense-scan/realsense_scan/cmake-build-debug/CMakeFiles/readFromRealsense.dir

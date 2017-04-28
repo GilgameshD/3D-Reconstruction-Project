@@ -31,7 +31,6 @@ int initRealsense(rs::context & ctx, rs::device ** dev)
     return EXIT_SUCCESS;
 }
 
-
 std::string int2str(int &int_temp)
 {
     std::string string_temp;
@@ -52,21 +51,25 @@ void readfromrealsense(rs::device * dev)
     float scale = dev->get_depth_scale();
 
     cv::Mat rgb(color_intrin.height, color_intrin.width, CV_8UC3, (uchar *)dev->get_frame_data(rs::stream::rectified_color));
+    cv::Mat rgb_2;
     cv::Mat depth(depth_intrin.height, depth_intrin.width, CV_16U,(uchar *)dev->get_frame_data(rs::stream::depth_aligned_to_color));
 
     //std::cout << color_intrin.fx << " " << color_intrin.fy << " " << color_intrin.ppx << " " << color_intrin.ppy << std::endl;
     //std::cout << scale << std::endl;
 
-    if(iteration % 1 == 0)
+    if(iteration % 2 == 0)
     {
         const std::string namePC1 = "../data/rgb_png/" + int2str(saveNumber) + ".png";
         const std::string namePC2 = "../data/depth_png/" + int2str(saveNumber) + ".png";
 
         saveNumber++;
-        cvtColor(rgb, rgb, cv::COLOR_BGR2RGB);
-        cv::imwrite(namePC1, rgb);
+        cvtColor(rgb, rgb_2, cv::COLOR_BGR2RGB);
+        cv::imwrite(namePC1, rgb_2);
         cv::imwrite(namePC2, depth);
-        std::cout << "saved one image : " << namePC1 << std::endl;
+        imshow("color", rgb_2);
+        cv::waitKey(1);
+        
+        std::cout << "saved one image : " << namePC1 << " " << namePC2 <<std::endl;
     }
     iteration++;
 }
@@ -83,7 +86,7 @@ int main() try
 
     if(initRealsense(ctx, &dev) == EXIT_FAILURE) 
         return EXIT_FAILURE;
-
+    cv::namedWindow("color");
     std::cout << "Read" << std::endl;
     while(true)
     {

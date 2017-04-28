@@ -1,0 +1,40 @@
+# feature detector for books
+detector=ORB
+descriptor=ORB
+
+# good match
+good_match_threshold=10
+
+# camera parameters
+camera.cx=321.153;
+camera.cy=246.486;
+camera.fx=610.098;
+camera.fy=610.098;
+# This is bery import, it decides all other parameters' scale
+camera.scale=10000;
+
+# start and stop index
+start_index=50
+end_index=852
+
+# data diectory
+rgb_dir=../../realsense_scan/data/rgb_png/
+rgb_extension=.png
+depth_dir=../../realsense_scan/data/depth_png/
+depth_extension=.png
+
+# smallest match points
+min_good_match=10
+
+# smallest inliers
+min_inliers=5
+
+# max tranformation norm
+max_norm=0.18
+keyframe_threshold=0.1
+max_norm_lp=2.0
+downSampleSize=0.005
+
+# Loop closure
+nearby_loops=10
+random_loops=5

@@ -1,3 +1,8 @@
+/*
+ * read rgb and depth image and write point cloud files to the disk, using default method provided by intel API
+ * but the results seem to have something wrong, the color may has some mistakes
+ */
+
 #include <iostream>
 #include <vector>
 #include <ctime>
@@ -161,19 +166,20 @@ int main() try
         readFromRealSense(dev, oneFrame, color, depth);
         cv::imwrite("../data/color.jpg", color);
         cv::imwrite("../data/depth.jpg", depth);
+        imshow("color", color);
 
         if(iteration % 1 == 0)
         {
             oneFrame->width = 1;
             oneFrame->height = oneFrame->points.size();
             const std::string namePC = "../data/" + int2str(index) + ".pcd";
-            pcl::PCDWriter writer;  
-            writer.write(namePC, *oneFrame);  
+            //pcl::PCDWriter writer;  
+            //writer.write(namePC, *oneFrame);  
             index++;
-            std::cout << "save one pcd...[" << index << "]" << std::endl;
+            std::cout << "save one image...[" << index << "]" << std::endl;
 
-            view->removePointCloud("original");
-            view->addPointCloud(oneFrame, "original");
+            //view->removePointCloud("original");
+            //view->addPointCloud(oneFrame, "original");
         }
 
         iteration++;

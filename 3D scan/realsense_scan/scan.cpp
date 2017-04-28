@@ -3,13 +3,10 @@
 
 // pcl lib
 #include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
 #include <pcl/visualization/pcl_visualizer.h>
-#include <boost/thread/thread.hpp>
 #include <pcl/console/parse.h> 
 #include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/filter.h>
 #include <pcl/features/normal_3d.h>
 
 #include <librealsense/rs.hpp>
@@ -27,7 +24,7 @@ std::string int2str(const int &int_temp)
     return string_temp;
 }
 
-int initRealsense(rs::context & ctx, rs::device ** dev)
+int initRealsense(rs::context & ctx, rs::device **dev)
 {
     printf("There are %d connected RealSense devices.\n", ctx.get_device_count());
     if(ctx.get_device_count() == 0) 
@@ -51,8 +48,8 @@ void readFromRealSense(rs::device *dev, PointT::Ptr oneFrame)
     dev->wait_for_frames();
 
     // Retrieve our images
-    const uint16_t * depth_image = (const uint16_t *)dev->get_frame_data(rs::stream::depth);
-    const uint8_t * color_image = (const uint8_t *)dev->get_frame_data(rs::stream::color);
+    const uint16_t *depth_image = (const uint16_t *)dev->get_frame_data(rs::stream::depth);
+    const uint8_t *color_image = (const uint8_t *)dev->get_frame_data(rs::stream::color);
 
     // Retrieve camera parameters for mapping between depth and color
     rs::intrinsics depth_intrin = dev->get_stream_intrinsics(rs::stream::depth);
@@ -63,7 +60,7 @@ void readFromRealSense(rs::device *dev, PointT::Ptr oneFrame)
     int index = 0;
     for(int dy = 0;dy < depth_intrin.height; ++dy)
     {
-        for(int dx = 0;dx<depth_intrin.width; ++dx)
+        for(int dx = 0;dx < depth_intrin.width; ++dx)
         {
             // Retrieve the 16-bit depth value and map it into a depth in meters
             uint16_t Z = depth_image[dy * depth_intrin.width + dx];

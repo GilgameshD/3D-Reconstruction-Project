@@ -1,12 +1,3 @@
-# pragma once
-
-// 各种头文件 
-// C++标准库
-#include <fstream>
-#include <vector>
-#include <map>
-using namespace std;
-
 // Eigen
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -17,7 +8,6 @@ using namespace std;
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
 
-
 // PCL
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
@@ -25,10 +15,34 @@ using namespace std;
 #include <pcl/common/transforms.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/passthrough.h>
+
+// g2o
+#include <g2o/types/slam3d/types_slam3d.h>
+#include <g2o/core/sparse_optimizer.h>
+#include <g2o/core/block_solver.h>
+#include <g2o/core/factory.h>
+#include <g2o/core/optimization_algorithm_factory.h>
+#include <g2o/core/optimization_algorithm_gauss_newton.h>
+#include <g2o/solvers/eigen/linear_solver_eigen.h>
+#include <g2o/core/robust_kernel.h>
+#include <g2o/core/robust_kernel_impl.h>
+#include <g2o/core/optimization_algorithm_levenberg.h>
+
+// STL
+#include <fstream>
+#include <vector>
+#include <map>
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 // 类型定义
 typedef pcl::PointXYZRGBA PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
+typedef g2o::BlockSolver_6_3 SlamBlockSolver; 
+typedef g2o::LinearSolverEigen< SlamBlockSolver::PoseMatrixType > SlamLinearSolver; 
+
 
 // 相机内参结构
 struct CAMERA_INTRINSIC_PARAMETERS 
@@ -52,31 +66,13 @@ struct RESULT_OF_PNP
     int inliers;
 };
 
-// 函数接口
-// image2PonitCloud 将rgb图+深度图转换为点云
-PointCloud::Ptr image2PointCloud(cv::Mat& rgb, cv::Mat& depth, CAMERA_INTRINSIC_PARAMETERS& camera );
-
-// point2dTo3d 将单个点从图像坐标转换为空间坐标
-// input: 3维点Point3f (u,v,d)
-cv::Point3f point2dTo3d(cv::Point3f& point, CAMERA_INTRINSIC_PARAMETERS& camera );
-
-// computeKeyPointsAndDesp 同时提取关键点与特征描述子
-void computeKeyPointsAndDesp(FRAME& frame, string detector, string descriptor );
-
-// estimateMotion 计算两个帧之间的运动
-// 输入：帧1和帧2, 相机内参
-RESULT_OF_PNP estimateMotion(FRAME& frame1, FRAME& frame2, CAMERA_INTRINSIC_PARAMETERS& camera );
-
-// cvMat2Eigen
-Eigen::Isometry3d cvMat2Eigen( cv::Mat& rvec, cv::Mat& tvec );
-
-// joinPointCloud 
-// 将新来的frame和之前的点云合并
-PointCloud::Ptr joinPointCloud( PointCloud::Ptr original, FRAME& newFrame, Eigen::Isometry3d T, CAMERA_INTRINSIC_PARAMETERS& camera ) ;
-
-// 将pcd文件转换成ply文件
-int PCDtoPLYconvertor(string & input_filename ,string& output_filename);
-
+enum CHECK_RESULT
+{
+    NOT_MATCHED = 0, 
+    TOO_FAR_AWAY, 
+    TOO_CLOSE, 
+    KEYFRAME
+};
 
 // 参数读取类
 // 使用STL内部的map<>类型来作为参数文件的储存方式
@@ -108,7 +104,7 @@ public:
             string value = str.substr( pos+1, str.length() );
             data[key] = value;
 
-            if ( !fin.good() )
+            if (!fin.good())
                 break;
         }
     }
@@ -138,6 +134,46 @@ inline static CAMERA_INTRINSIC_PARAMETERS getDefaultCamera()
     camera.scale = atof( pd.getData( "camera.scale" ).c_str() );
     return camera;
 }
+
+// 函数接口
+// image2PonitCloud 将rgb图+深度图转换为点云
+PointCloud::Ptr image2PointCloud(cv::Mat& rgb, cv::Mat& depth, CAMERA_INTRINSIC_PARAMETERS& camera );
+
+// point2dTo3d 将单个点从图像坐标转换为空间坐标
+// input: 3维点Point3f (u,v,d)
+cv::Point3f point2dTo3d(cv::Point3f& point, CAMERA_INTRINSIC_PARAMETERS& camera );
+
+// computeKeyPointsAndDesp 同时提取关键点与特征描述子
+void computeKeyPointsAndDesp(FRAME& frame, string detector, string descriptor );
+
+// estimateMotion 计算两个帧之间的运动
+// 输入：帧1和帧2, 相机内参
+RESULT_OF_PNP estimateMotion(FRAME& frame1, FRAME& frame2, CAMERA_INTRINSIC_PARAMETERS& camera );
+
+// cvMat2Eigen
+Eigen::Isometry3d cvMat2Eigen( cv::Mat& rvec, cv::Mat& tvec );
+
+// join new point cloud 
+PointCloud::Ptr joinPointCloud( PointCloud::Ptr original, FRAME& newFrame, Eigen::Isometry3d T, CAMERA_INTRINSIC_PARAMETERS& camera ) ;
+
+// convert pcd to ply file
+int PCDtoPLYconvertor(string & input_filename ,string& output_filename);
+
+// get one frame
+FRAME readFrame(int index, ParameterReader& pd);
+
+// estimate the motion between two frame
+double normofTransform(cv::Mat rvec, cv::Mat tvec);
+
+// 检测关键帧，下面的两个检测方法用的这个
+CHECK_RESULT checkKeyframes(CAMERA_INTRINSIC_PARAMETERS camera, FRAME& f1, FRAME& f2, g2o::SparseOptimizer& opti, bool is_loops = false);
+
+// 检测近距离的回环
+void checkNearbyLoops(CAMERA_INTRINSIC_PARAMETERS camera, vector<FRAME>& frames, FRAME& currFrame, g2o::SparseOptimizer& opti);
+
+// 随机检测回环
+void checkRandomLoops(CAMERA_INTRINSIC_PARAMETERS camera, vector<FRAME>& frames, FRAME& currFrame, g2o::SparseOptimizer& opti);
+
 
 //the following are UBUNTU/LINUX ONLY terminal color
 #define RESET "\033[0m"
