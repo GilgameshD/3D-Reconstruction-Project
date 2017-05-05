@@ -1,5 +1,3 @@
-linux, os x: |TravisCI|_ windows: |AppVeyor|_ code coverage: |ci_cov|_
-
 # realsense-project
 These are some projects about realsense F200, using SDK and API provided by Intel.
 1. get hand gestures and control ppt, do something like page up and page down. (Windows)
