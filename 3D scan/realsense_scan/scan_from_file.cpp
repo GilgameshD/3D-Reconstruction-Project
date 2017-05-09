@@ -212,7 +212,7 @@ void optimizationWithG2o(g2o::SparseOptimizer &globalOptimizer, std::vector<Poin
         // merge all point cloud
         *output += *(inputSequence[i]);
     }
-    std::cout << RESET"finish merging all frames, waiting for saving the file..." << std::endl;
+    std::cout << RESET"Finish merging all frames, waiting for saving the file..." << std::endl;
 }
 
 // put into one edge, it connect two frames
@@ -284,7 +284,7 @@ int main(int argc, char** argv)
     double TransformationEpsilon = atof(pd.getData("TransformationEpsilon").c_str());
     double EuclideanFitnessEpsilon = atof(pd.getData("EuclideanFitnessEpsilon").c_str());
     int maxNearbyFrame = (int)atof(pd.getData("maxNearbyFrame" ).c_str());
-    int fitnessThreshhold = (int)atof(pd.getData("fitnessThreshhold").c_str());
+    double fitnessThreshhold = atof(pd.getData("fitnessThreshhold").c_str());
     float downSampleSize = (float)atof(pd.getData("downSampleSize").c_str());
     float outputGridSize = (float)atof(pd.getData("outputGridSize").c_str());
     camera_factor = (float)atof(pd.getData("camera_factor").c_str());
@@ -355,15 +355,8 @@ int main(int argc, char** argv)
             continue;
         }
 
-        // add this frame to the graph, for now I add all frame to it.
-        g2o::VertexSE3 *v = new g2o::VertexSE3();
-        v->setId(iterations);
-        v->setEstimate(Eigen::Isometry3d::Identity());
-        globalOptimizer.addVertex(v);
-
         // start ICP process
-        std::cout << RESET"Current vertex number is : " << globalOptimizer.vertices().size()
-                  << ". and current edge number is : "  << globalOptimizer.edges().size() << std::endl;
+
         std::cout << "waiting for ICP process..." << std::endl;
         pcl::IterativeClosestPoint<pcl::PointXYZRGBA, pcl::PointXYZRGBA> icp;
         // for every frame, we should do several icp with nearby frames to add as much as possible
@@ -388,8 +381,13 @@ int main(int argc, char** argv)
             // between this frame and last frame, get a rough transform
             if(i == 0)
             {
+                // add this frame to the graph, for now I add all frame to it.
+                g2o::VertexSE3 *v = new g2o::VertexSE3();
+                v->setId(iterations);
+                v->setEstimate(Eigen::Isometry3d::Identity());
+                globalOptimizer.addVertex(v);
+
                 globalTransformMatrix = globalTransformMatrix * icp.getFinalTransformation();
-                break;
             }
 
             // the smaller of the score, the better
@@ -402,8 +400,11 @@ int main(int argc, char** argv)
 
             // add an edge
             addOneEdgeBetweenTwoFrames(iterations, iterations-i-1, globalOptimizer, icp.getFinalTransformation());
-            std::cout << BLUE"add one edge into the graph, it is between " << iterations-i-1 << " and " << iterations << std::endl;
+            std::cout << BLUE"Add one edge into the graph, it is between " << iterations-i-1 << " and " << iterations << std::endl;
         }
+
+        std::cout << RESET"Current vertex number is : " << globalOptimizer.vertices().size()
+                  << ". and current edge number is : "  << globalOptimizer.edges().size() << std::endl;
 
         // show point cloud
         const std::string namePC = int2str(iterations);
